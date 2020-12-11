@@ -1,0 +1,209 @@
+---
+title: "Cartes auto-adaptatives"
+author: "Guyliann Engels & Philippe Grosjean"
+description: "**SDD II Module 6** Application des concepts liés au cartes auto-adaptatives (SOM)"
+tutorial:
+  id: "B06Lc_som"
+  version: 1.0.0
+output: 
+  learnr::tutorial:
+    progressive: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+BioDataScience2::learnr_setup()
+SciViews::R()
+library(BioDataScience)
+library(ade4)
+library(kohonen)
+
+# Preparation dataset ------
+data("doubs")
+enviro <- doubs$env
+```
+
+```{r, echo=FALSE}
+BioDataScience2::learnr_banner()
+```
+
+```{r, context="server"}
+BioDataScience2::learnr_server(input, output, session)
+```
+
+----
+
+**Ce tutoriel est encore sous sa première version, il est en cours de mise à jour.**
+
+## Objectifs
+
+- TODO
+
+
+## Contexte 
+
+Des scientifiques ont réalisé des mesures d'abondance d'espèces de poissons et des mesures physico-chimiques sur 30 stations différentes.
+
+L'objet `doubs` du package `ade4` est une liste qui contient 4 jeux de donnnées. Nous nous intéresserons aux données portant sur les mesures environnementales.
+
+```{r}
+data(doubs, package = "ade4")
+class(doubs)
+```
+
+Ce tableau comprend 30 sites d'échantillonages avec 11 mesures environnementales.
+
+```{r}
+enviro <- doubs$env
+```
+
+Voici une courte description des variables étudiées (en anglais). Ces informations proviennent de la page d'aide `?ade4::doubs`
+
+- dfs : distance from the source (km * 10), 
+- alt : altitude (m), 
+- slo : (log(x + 1) where x is the slope (per mil * 100), 
+- flo : minimum average stream flow (m3/s * 100), 
+- pH : pH,
+- har : total hardness of water (mg/l of Calcium), 
+- pho : phosphates (mg/l * 100), 
+- nit : nitrates (mg/l * 100), 
+- amm : ammonia nitrogen (mg/l * 100), 
+- oxy : dissolved oxygen (mg/l * 10), 
+- bdo : biological demand for oxygen (mg/l * 10)
+
+```{r, echo=TRUE}
+summary(enviro)
+```
+
+## Cartes auto-adaptatives (SOM)
+
+La fonction som() du package kohonen ne peut employer qu'une matrice. Commencez par centrer et transfomez `enviro` en une matrice.
+
+```{r, echo = TRUE, eval = FALSE}
+# function de base
+DF %>.%
+  scale(.) %>.%
+  as.matrix(.) -> MATRIX
+
+som. <- som(MATRIX, grid = somgrid(X, Y, topo = "hexagonal"))
+# un premier graphique de diagnostic est le nombre d'observation pour 
+plot(som., type = "mapping", shape = "straight")
+```
+
+```{r som_noscore, exercise = TRUE, exercise.checker=learndown::checker_ack_learnr}
+summary(enviro)
+```
+
+```{r som_noscore-hint-1}
+# function de base
+DF %>.%
+  scale(.) %>.%
+  as.matrix(.) -> MATRIX
+
+som. <- som(MATRIX, grid = somgrid(X, Y, topo = "hexagonal"))
+# un premier graphique de diagnostic est le nombre d'observation pour 
+plot(som., type = "mapping", shape = "straight")
+```
+
+```{r som_noscore-hint-2}
+# function de base
+enviro %>.%
+  scale(.) %>.%
+  as.matrix(.) -> envi_mat
+
+som. <- som(envi_mat, grid = somgrid(3, 3, topo = "hexagonal"))
+# un premier graphique de diagnostic est le nombre d'observation pour 
+plot(som., type = "mapping", shape = "straight")
+```
+
+```{r som_noscore-check}
+# TODO
+```
+
+```{r qu_som_noscore}
+question("Selon vous quelle est la grille la plus adpatée afin de représenter les données provenant d `enviro` ?",
+           answer("Une grille 2 sur 1"),
+           answer("Une grille 3 sur 3", correct = TRUE),
+           answer("Une grille 5 sur 6"),
+          allow_retry = TRUE)
+```
+
+## Exploration graphique de som
+
+Utilisez à nouveau le jeu de données `enviro`. 
+
+- Réalisez une grille 3 sur 3
+- Réalisez un graphique de type = "codes"
+
+```{r, echo = TRUE, eval = FALSE}
+# function de base
+DF %>.%
+  scale(.) %>.%
+  as.matrix(.) -> MATRIX
+
+som. <- som(MATRIX, grid = somgrid(X, Y, topo = "hexagonal"))
+# un premier graphique de diagnostic est le nombre d'observation pour 
+plot(som., type = "mapping", shape = "straight")
+plot(som., type = "codes", 
+     codeRendering = "segments", shape = "straight")
+plot(zoo_som, type = "changes", shape = "straight")
+```
+
+```{r som1_noscore, exercise = TRUE, exercise.checker=learndown::checker_ack_learnr}
+summary(enviro)
+```
+
+```{r som1_noscore-hint-1}
+DF %>.%
+  scale(.) %>.%
+  as.matrix(.) -> MATRIX
+
+som. <- som(MATRIX, grid = somgrid(X, Y, topo = "hexagonal"))
+# un premier graphique de diagnostic est le nombre d'observation pour 
+plot(som., type = "mapping", shape = "straight")
+plot(som., type = "codes", 
+     codeRendering = "segments", shape = "straight")
+plot(zoo_som, type = "changes", shape = "straight")
+```
+
+```{r som1_noscore-hint-2}
+DF %>.%
+  scale(.) %>.%
+  as.matrix(.) -> MATRIX
+
+som. <- som(MATRIX, grid = somgrid(X, Y, topo = "hexagonal"))
+# un premier graphique de diagnostic est le nombre d'observation pour 
+plot(som., type = "codes", 
+     codeRendering = "segments", shape = "straight")
+```
+
+```{r som1_noscore-hint-3}
+enviro %>.%
+  scale(.) %>.%
+  as.matrix(.) -> enviro_mat
+
+som. <- som(enviro_mat, grid = somgrid(3, 3, topo = "hexagonal"))
+# un premier graphique de diagnostic est le nombre d'observation pour 
+plot(som., type = "codes", 
+     codeRendering = "segments", shape = "straight")
+```
+
+```{r som1_noscore-check}
+# TODO
+```
+
+Après avoir réalisé ce graphiques, tentez de l'analyser. 
+
+## Conclusion
+
+Vous venez de terminer votre séance d'exercice.
+
+```{r comm_noscore, echo=FALSE}
+question_text(
+  "Laissez-nous vos impressions sur ce learnr",
+  answer("", TRUE, message = "Pas de commentaires... C'est bien aussi."),
+  incorrect = "Vos commentaires sont enregistrés.",
+  placeholder = "Entrez vos commentaires ici...",
+  allow_retry = TRUE
+)
+```
